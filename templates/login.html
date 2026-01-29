@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - PhishShield</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3f 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        .glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+        }
+        
+        .glow-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 200, 255, 0.2), transparent);
+            top: -100px;
+            left: -100px;
+            animation: float1 6s ease-in-out infinite;
+        }
+        
+        .glow-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 0, 128, 0.15), transparent);
+            bottom: -50px;
+            right: -50px;
+            animation: float2 8s ease-in-out infinite;
+        }
+        
+        @keyframes float1 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(50px, 50px); }
+        }
+        
+        @keyframes float2 {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-50px, -50px); }
+        }
+        
+        .login-container {
+            width: 100%;
+            max-width: 420px;
+            z-index: 10;
+            animation: slideIn 0.6s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .login-box {
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            border-radius: 8px;
+            padding: 50px 40px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 200, 255, 0.1);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 40px;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00c8ff, #0088ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 200, 255, 0.05);
+            border: 1px solid rgba(0, 200, 255, 0.3);
+            border-radius: 4px;
+            color: #e0e0e0;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            background: rgba(0, 200, 255, 0.1);
+            border-color: rgba(0, 200, 255, 0.6);
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
+        }
+        
+        input::placeholder {
+            color: #606080;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #00c8ff, #0088ff);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 200, 255, 0.3);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 200, 255, 0.4);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+        }
+        
+        .btn-login.loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .error-message.show {
+            display: block;
+            animation: shake 0.4s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: #00c8ff;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+        
+        .back-link a:hover {
+            color: #00ff88;
+        }
+        
+        .security-info {
+            background: rgba(0, 136, 255, 0.1);
+            border-left: 3px solid #0088ff;
+            padding: 12px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #a0a0a0;
+        }
+        
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+    
+    <div class="login-container">
+        <div class="login-box">
+            <div class="logo">🛡️</div>
+            <h1 class="title">PhishShield</h1>
+            <p class="subtitle">Plateforme de Sensibilisation au Phishing</p>
+            
+            <div class="success-message" id="successMsg"></div>
+            <div class="error-message" id="errorMsg"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        placeholder="Entrez votre identifiant"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Entrez votre mot de passe"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="btn-login" id="loginBtn">Connexion</button>
+            </form>
+            
+            <div class="back-link">
+                <a href="/">← Retour à l'accueil</a>
+            </div>
+            
+            <div class="security-info">
+                ℹ️ Connexion réservée aux administrateurs de sécurité. Tous les accès sont enregistrés et audités.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+            
+            if (!username || !password) {
+                showError('Veuillez remplir tous les champs');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.classList.add('loading');
+            loginBtn.textContent = 'Connexion...';
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+            
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('Connexion réussie. Redirection...');
+                    setTimeout(() => {
+                        if (data.role === 'admin') {
+                            window.location.href = '/admin/dashboard';
+                        } else {
+                            window.location.href = '/employee/dashboard';
+                        }
+                    }, 500);
+                } else {
+                    showError(data.error || 'Identifiants invalides');
+                    passwordInput.value = '';
+                }
+            } catch (error) {
+                showError('Erreur de connexion au serveur');
+                console.error('Login error:', error);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.classList.remove('loading');
+                loginBtn.textContent = 'Connexion';
+            }
+        });
+        
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+        }
+        
+        function showSuccess(message) {
+            successMsg.textContent = message;
+            successMsg.classList.add('show');
+        }
+        
+        // Focus animation
+        [usernameInput, passwordInput].forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.opacity = '1';
+            });
+        });
+    </script>
+</body>
+</html>
